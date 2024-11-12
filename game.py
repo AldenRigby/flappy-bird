@@ -15,6 +15,9 @@ class Game:
         self.rotated_bird = pygame.Surface((0,0))
         self.pipes = []
         self.pipe_height = [280, 425, 562]
+        self.score = 0
+        self.high_score = 0
+        self.font = pygame.font.SysFont(None, 48)
 
         self.difficulty = 0
 
@@ -62,7 +65,6 @@ class Game:
         for pipe in self.pipes:
             temp = 1 + self.difficulty/15
             pipe.centerx -= temp
-            print(temp)
             if pipe.centerx <= -40:
                 self.pipes.remove(pipe)
 
@@ -81,5 +83,42 @@ class Game:
             if self.bird_rect.colliderect(pipe):
                 self.active = False
 
-        if self.bird_rect.top > 700 or self.bird_rect.bottom <= -100:
+        if self.bird_rect.top > 650 or self.bird_rect.bottom <= -100:
             self.active = False
+
+    def update_score(self):
+        self.score += 0.01
+
+    def show_score(self, game_state, screen, color):
+        score_surface = self.font.render(str(int(self.score)), True, color)
+        score_rect = score_surface.get_rect(center = (202, 75))
+        screen.blit(score_surface, score_rect)
+        if game_state == "dead LLLL":
+            restart_text1 = self.font.render("Press spacebar to reset", True, color)
+            restart_rect1 = restart_text1.get_rect(center = (200, 280))
+            screen.blit(restart_text1, restart_rect1)
+
+            restart_text1 = self.font.render("Press spacebar to reset", True, color)
+            restart_rect1 = restart_text1.get_rect(center = (200, 280))
+            screen.blit(restart_text1, restart_rect1)
+
+            high_score_surface = self.font.render("High score: {:d}".format(int(self.high_score)), True, color)
+            high_score_rect = high_score_surface.get_rect(center = (200, 340))
+            screen.blit(high_score_surface, high_score_rect)
+            #restart_text2 = self.font.render("Press spacebar to play", True, color)
+
+    def game_over(self, screen, color):
+        self.update_high_score()
+        self.show_score("dead LLLL", screen, color)
+
+    def update_high_score(self):
+        if int(self.score) > int(self.high_score):
+            self.high_score = self.score
+
+    def restart(self):
+        self.active = True
+        del self.pipes[:]
+        self.score = 0
+        self.bird_rect.centery = 200
+        self.bird_movement = 0
+        self.difficulty = 0
